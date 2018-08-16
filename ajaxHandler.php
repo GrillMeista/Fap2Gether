@@ -28,7 +28,7 @@ Autoloader::register();
 
 $config = include_once 'config/ajax_config.php';
 
-$data = getNames();
+$data = getNames($config);
 
 //Autoloader or this
 //include_once($data['service'] . '.php');
@@ -43,12 +43,44 @@ echo call_user_func_array(
         (new $data['service']),
         $config[$data['service']][$data['method']]
     ],
-    ($_SERVER['REQUEST_METHOD'] === 'GET') ? $_GET : $_POST
+    ($_SERVER['REQUEST_METHOD'] === 'GET') ? input($_GET) : input($_POST)
 );
 
-function getNames()
+function input($input)
 {
+    foreach ($input as $key => $value){
+        $input[$key] = trim(strip_tags(stripslashes(htmlspecialchars($value))));
+    }
+
+    return $input;
+}
+
+function getNames($config)
+{
+    $response = new Response();
+
     $service = explode('/', $_SERVER['PATH_INFO']);
+
+    if(!isset($config[$service[1]])) {
+        $response->setStatusCode(Response::NOT_FOUND);
+        $response->setMessage("Service not found!");
+        echo $response;
+        die();
+    }
+
+    if(isset($config[$service[1]]) && !isset($config[$service[1]][$service[2]])) {
+        $response->setStatusCode(Response::NOT_FOUND);
+        $response->setMessage("No Method to Service found!");
+        echo $response;
+        die();
+    }
+
+    if(!isset($config[$service[1]][$service[2]])) {
+        $response->setStatusCode(Response::NOT_FOUND);
+        $response->setMessage("Method or Service not found!");
+        echo $response;
+        die();
+    }
 
     return [
         'service' => $service[1],

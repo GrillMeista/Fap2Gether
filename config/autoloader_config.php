@@ -1,6 +1,7 @@
 <?php return [
   'Autoloader'      => 'Modules/Application/Autoloader/Autoloader.php',
   'Auth'            => 'Modules/Auth/Auth.php',
+  'AuthAdapter'     => 'Modules/Auth/AuthAdapter.php',
   'DBConnector'     => 'Modules/Application/Database/DBConnector.php',
   'DBData'          => 'Modules/Application/Database/DBData.php',
   'UserModel'       => 'Modules/Application/Database/tables/UserModel.php',
@@ -9,7 +10,11 @@
   'AuthResponse'    => 'Modules/Auth/AuthResponse.php',
   'Response'        => 'Modules/Application/Response/Response.php',
   'Lobby'           => 'Modules/Lobby/Lobby.php',
+  'LobbyAdapter'    => 'Modules/Lobby/LobbyAdapter.php',
   'LobbyEntity'     => 'Modules/Lobby/LobbyEntity.php',
   'LobbyResponse'   => 'Modules/Lobby/LobbyResponse.php',
   'LobbyModel'      => 'Modules/Application/Database/tables/LobbyModel.php',
+  'Profile'         => 'Modules/Profile/Profile.php',
+  'ProfileAdapter'  => 'Modules/Profile/ProfileAdapter.php',
+  'ProfileResponse' => 'Modules/Profile/ProfileResponse.php',
 ];

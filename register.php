@@ -5,9 +5,10 @@
 </head>
 <body>
 <form id="form_control" method="post">
+    <input type="text" name="username"><br/>
     <input type="email" name="email"><br/>
     <input type="password" name="password"><br/>
-    <input type="password_check" name="password_check"><br/>
+    <input type="password" name="password_check"><br/>
 </form>
 <button id="bb">Register</button>
 </body>

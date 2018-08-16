@@ -1,156 +1,131 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jonas
- * Date: 14.08.2018
- * Time: 19:08
- */
-
 
 class Auth
 {
-    /** @var AuthResponse  */
+
+    /** @var AuthResponse */
     private $response;
 
-    /** @var DBConnector  */
-    private $db;
-
-    /** @var QueryBox  */
-    private $qb;
+    /** @var AuthAdapter */
+    private $adapter;
 
     public function __construct()
     {
         $this->response = new AuthResponse();
-        $this->db       = new DBConnector();
-        $this->qb       = new QueryBox();
+        $this->adapter = new AuthAdapter();
     }
 
-    /**
-     * Register Action
-     *
-     * @param string $email
-     * @param string $password
-     * @param string $passwordCheck
-     * @return AuthResponse
-     */
-    public function register($email, $password, $passwordCheck) : AuthResponse
+    public function register($username, $email, $password, $passwordCheck)
     {
-        //Checks if the passwords are equal
-        if($password !== $passwordCheck){
-            $this->response->setStatusCode(AuthResponse::UNEQUAL_PASSWORDS);
-            $this->response->setMessage('The passwords are not equal');
+        if(!isset($username)){
+            $this->response->setStatusCode(AuthResponse::NO_USERNAME);
+            $this->response->setMessage('No username');
 
             return $this->response;
         }
 
-        $passwordCheck = "";
+        if(!isset($email)){
+            $this->response->setStatusCode(AuthResponse::NO_EMAIL);
+            $this->response->setMessage('No email');
+
+            return $this->response;
+        }
+
+        //Comparing password and password_check
+        if($password !== $passwordCheck){
+            $this->response->setStatusCode(AuthResponse::UNEQUAL_PASSWORDS);
+            $this->response->setMessage('Unequal passwords');
+
+            return $this->response;
+        }
 
         //Checks if the email is valid
         if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
             $this->response->setStatusCode(AuthResponse::NO_EMAIL);
-            $this->response->setMessage('The given value was not an email');
+            $this->response->setMessage('Email is not in the correct format');
 
             return $this->response;
         }
 
-        //Input-validation
-        $email = $this->validate($email);
-        $password = $this->validate($password);
+        //Validation of the used parameters
+        $username = $this->validator($username);
+        $email    = $this->validator($email);
+        $password = $this->validator($password);
 
-        //Password-hashing
+        //Password-cryption
         $password = password_hash($password, PASSWORD_DEFAULT);
 
-        //Build query to check if the user exists
-        $this->qb->select( [UserModel::$id] );
-        $this->qb->from( UserModel::$table );
-        $this->qb->where(UserModel::$email, '=', $email);
-
         /** @var UserEntity $result */
-        $result = $this->db->sendSingleReturn($this->qb->getQuery(), UserEntity::class);
+        $result = $this->adapter->getUserByEmail($email);
 
         //Check if the user exists
         if($result){
+
             $this->response->setStatusCode(AuthResponse::USER_ALREADY_EXISTS);
-            $this->response->setMessage('user already exists');
+            $this->response->setMessage('User already exists');
 
             return $this->response;
         }
 
-        //Build query to insert out user in the database
-        $this->qb->insertInto(UserModel::$table, [UserModel::$email, UserModel::$password], [$email, $password]);
-        $this->db->sendVoid($this->qb->getQuery());
+        $this->adapter->insertUser($username, $email, $password);
 
+        //Returns SUCCESS status
         $this->response->setStatusCode(Response::SUCCESS);
-        $this->response->setMessage('successfully registered');
+        $this->response->setMessage('Successfully registered');
 
         return $this->response;
     }
 
-    /**
-     * Login Action
-     *
-     * @param string $email
-     * @param string $password
-     * @return AuthResponse
-     */
-    public function login($email, $password) : AuthResponse
+    public function login($email, $password)
     {
         session_start();
 
-        //Checks if the email is valid
+        //Check if the email includes ' @ ' and ' . '
         if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
             $this->response->setStatusCode(AuthResponse::NO_EMAIL);
-            $this->response->setMessage('The given value was not an email');
+            $this->response->setMessage('Email is not in the correct format');
 
             return $this->response;
         }
 
-        //Input-validation
-        $email = $this->validate($email);
-        $password = $this->validate($password);
-
-        $this->qb->select([UserModel::$password]);
-        $this->qb->from(UserModel::$table);
-        $this->qb->where(UserModel::$email, '=', $email);
+        //Validation of the used parameters
+        $email    = $this->validator($email);
+        $password = $this->validator($password);
 
         /** @var UserEntity $result */
-        $result = $this->db->sendSingleReturn($this->qb->getQuery(), UserEntity::class);
+        $result = $this->adapter->getUserByEmail($email);
 
-        //Checks if user exists
+        //Checks if the user exists
         if(!$result){
-            $this->response->setStatusCode(AuthResponse::USER_NOT_FOUND);
-            $this->response->setMessage('user not found');
+            $this->response->setStatusCode(AuthResponse::UNKNOWN_USER);
+            $this->response->setMessage('No user to that email found');
 
             return $this->response;
         }
 
         if(!password_verify($password, $result->password)){
             $this->response->setStatusCode(AuthResponse::WRONG_PASSWORD);
-            $this->response->setStatusCode('wrong password');
+            $this->response->setMessage('Wrong Password');
 
             return $this->response;
         }
 
         $_SESSION['email'] = $email;
+        $_SESSION['admin'] = $result->admin;
 
         $this->response->setStatusCode(Response::SUCCESS);
-        $this->response->setMessage('successfully logged in');
+        $this->response->setMessage('Successfully logged in');
 
         return $this->response;
     }
 
-    /**
-     * @param string $input
-     * @return string
-     */
-    private function validate($input) : string
+    private function validator($input)
     {
         $input = htmlspecialchars($input);
         $input = strip_tags($input);
-        $input = stripcslashes($input);
+        $input = stripslashes($input);
         $input = trim($input);
 
         return $input;
     }
-
 }

@@ -1,7 +1,5 @@
 <?php
-/*
- * Simple QueryBuilder
- */
+
 class QueryBox
 {
     const SELECT = "SELECT";
@@ -51,7 +49,7 @@ class QueryBox
     }
 
     /**
-     * Adds a condition your query
+     * Adds a condition to your query
      *
      * Call this function : QueryBoxObject->where( "condition", "=", "value" );
      *
@@ -112,14 +110,19 @@ class QueryBox
     /**
      * Adds a set action to your query
      *
-     * Call this function : QueryBoxObject->set( "column1", "value1" )
+     * Call this function : QueryBoxObject->set( ['column' => 'value', ...] )
      *
-     * @param string $column
-     * @param string $value
+     * @param array
      */
-    public function set($column, $value)
+    public function set($array)
     {
-        $this->query .= self::SET . " $column = $value ";
+        $this->query .= self::SET;
+        foreach ($array as $key => $value){
+            $this->query .= " $key = '$value',";
+        }
+
+        $this->query = substr_replace($this->query, " ", -1);
+
     }
 
     /**

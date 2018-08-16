@@ -50,7 +50,7 @@ class DBConnector
      * @param string $entity - the entity to that the method returns its data | just the classname
      * @return array | response
      */
-    public function sendReturn(string $sql, string $entity)
+    public function sendReturn($sql, $entity)
     {
         $statement = $this->connection->prepare($sql);
         $statement->execute();

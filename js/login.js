@@ -10,7 +10,7 @@ $(document).ready(function () {
             dataType:'json',
             success : function(data) {
                 if(data.status == 200){
-                    window.location.href = 'backend.php';
+                    window.location.href = 'secret.php';
                 }
             },
             error : function(request,error)
