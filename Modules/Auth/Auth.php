@@ -12,11 +12,17 @@ class Auth
     public function __construct()
     {
         $this->response = new AuthResponse();
-        $this->adapter = new AuthAdapter();
     }
 
     public function register($username, $email, $password, $passwordCheck)
     {
+        if($_SERVER['REQUEST_METHOD'] !== 'POST'){
+            $this->response->setStatusCode(Response::METHOD_NOT_ALLOWED);
+            $this->response->setMessage('This Service is POST');
+
+            return $this->response;
+        }
+
         if(!isset($username)){
             $this->response->setStatusCode(AuthResponse::NO_USERNAME);
             $this->response->setMessage('No username');
@@ -55,6 +61,8 @@ class Auth
         //Password-cryption
         $password = password_hash($password, PASSWORD_DEFAULT);
 
+        $this->getAdapter();
+
         /** @var UserEntity $result */
         $result = $this->adapter->getUserByEmail($email);
 
@@ -80,6 +88,13 @@ class Auth
     {
         session_start();
 
+        if($_SERVER['REQUEST_METHOD'] !== 'POST'){
+            $this->response->setStatusCode(Response::METHOD_NOT_ALLOWED);
+            $this->response->setMessage('This Service is POST');
+
+            return $this->response;
+        }
+
         //Check if the email includes ' @ ' and ' . '
         if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
             $this->response->setStatusCode(AuthResponse::NO_EMAIL);
@@ -92,6 +107,7 @@ class Auth
         $email    = $this->validator($email);
         $password = $this->validator($password);
 
+        $this->getAdapter();
         /** @var UserEntity $result */
         $result = $this->adapter->getUserByEmail($email);
 
@@ -117,6 +133,11 @@ class Auth
         $this->response->setMessage('Successfully logged in');
 
         return $this->response;
+    }
+
+    private function getAdapter()
+    {
+        $this->adapter = ($this->adapter == null) ? new AuthAdapter() : $this->adapter;
     }
 
     private function validator($input)

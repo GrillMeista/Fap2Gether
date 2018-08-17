@@ -39,17 +39,6 @@ class Response
     }
 
     /**
-     * Add an array-element
-     * {name : value}
-     * @param string $name
-     * @param mixed $value
-     */
-    public function addValue($name, $value): void
-    {
-        $this->data[$name] = $value;
-    }
-
-    /**
      * @return int
      */
     public function getStatusCode(): int

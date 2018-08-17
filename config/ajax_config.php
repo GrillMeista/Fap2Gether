@@ -14,4 +14,8 @@ return [
         'getUser' => 'getUser',
         'edit'    => 'edit',
     ],
+    'Sync'    => [
+        'setTime' => 'setTime',
+        'getTime' => 'getTime',
+    ],
 ];

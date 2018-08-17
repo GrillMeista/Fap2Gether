@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Jonas Schumacher
- * Date: 15.08.2018
- * Time: 16:58
- */
 
 class Lobby
 {
@@ -18,12 +12,18 @@ class Lobby
     public function __construct()
     {
         $this->response = new LobbyResponse();
-        $this->adapter = new LobbyAdapter();
     }
 
     public function create()
     {
         session_start();
+
+        if($_SERVER['REQUEST_METHOD'] !== 'POST'){
+            $this->response->setStatusCode(Response::METHOD_NOT_ALLOWED);
+            $this->response->setMessage('This Service is POST');
+
+            return $this->response;
+        }
 
         if(!isset($_SESSION['email'])){
             $this->response->setStatusCode(Response::UNAUTHORIZED);
@@ -32,6 +32,7 @@ class Lobby
             return $this->response;
         }
 
+        $this->getAdapter();
         $userId = $this->adapter->getUserByEmail($_SESSION['email'])->id;
 
         $key = uniqid();
@@ -50,6 +51,13 @@ class Lobby
     {
         session_start();
 
+        if($_SERVER['REQUEST_METHOD'] !== 'POST'){
+            $this->response->setStatusCode(Response::METHOD_NOT_ALLOWED);
+            $this->response->setMessage('This Service is POST');
+
+            return $this->response;
+        }
+
         if(!isset($_SESSION['email'])){
             $this->response->setStatusCode(Response::UNAUTHORIZED);
             $this->response->setMessage('User is not logged in');
@@ -64,6 +72,7 @@ class Lobby
             return $this->response;
         }
 
+        $this->getAdapter();
         /** @var LobbyEntity $result */
         $result = $this->adapter->getLobbyByKey($lobbyKey);
 
@@ -120,6 +129,13 @@ class Lobby
     {
         session_start();
 
+        if($_SERVER['REQUEST_METHOD'] !== 'POST'){
+            $this->response->setStatusCode(Response::METHOD_NOT_ALLOWED);
+            $this->response->setMessage('This Service is POST');
+
+            return $this->response;
+        }
+
         if(!isset($_SESSION['lobbykey'])){
             $this->response->setStatusCode(Response::UNAUTHORIZED);
             $this->response->setMessage('User is not a part of the lobby');
@@ -127,6 +143,7 @@ class Lobby
             return $this->response;
         }
 
+        $this->getAdapter();
         /** @var LobbyEntity $result */
         $result = $this->adapter->getLobbyByKey($_SESSION['lobbykey']);
 
@@ -136,6 +153,11 @@ class Lobby
         $this->response->setMembers($this->adapter->getLobbyMemberList($this->members2array($result->members)));
 
         return $this->response;
+    }
+
+    private function getAdapter()
+    {
+        $this->adapter = ($this->adapter == null) ? new LobbyAdapter() : $this->adapter;
     }
 
     /**

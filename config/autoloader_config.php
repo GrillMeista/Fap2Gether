@@ -17,4 +17,7 @@
   'Profile'         => 'Modules/Profile/Profile.php',
   'ProfileAdapter'  => 'Modules/Profile/ProfileAdapter.php',
   'ProfileResponse' => 'Modules/Profile/ProfileResponse.php',
+  'SyncResponse'    => 'Modules/Sync/SyncResponse.php',
+  'Sync'            => 'Modules/Sync/Sync.php',
+  'SyncAdapter'     => 'Modules/Sync/SyncAdapter.php',
 ];

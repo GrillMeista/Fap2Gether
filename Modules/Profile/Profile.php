@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Jonas Schumacher
- * Date: 16.08.2018
- * Time: 12:46
- */
 
 class Profile
 {
@@ -17,12 +11,18 @@ class Profile
     public function __construct()
     {
         $this->response = new ProfileResponse();
-        $this->adapter = new ProfileAdapter();
     }
 
     public function getUser()
     {
         session_start();
+
+        if($_SERVER['REQUEST_METHOD'] !== 'POST'){
+            $this->response->setStatusCode(Response::METHOD_NOT_ALLOWED);
+            $this->response->setMessage('This Service is POST');
+
+            return $this->response;
+        }
 
         if(!isset($_SESSION['email'])){
             $this->response->setStatusCode(Response::UNAUTHORIZED);
@@ -31,6 +31,7 @@ class Profile
             return $this->response;
         }
 
+        $this->getAdapter();
         /** @var UserEntity $user */
         $user = $this->adapter->getUserByEmail($_SESSION['email']);
 
@@ -54,6 +55,13 @@ class Profile
     {
         session_start();
 
+        if($_SERVER['REQUEST_METHOD'] !== 'POST'){
+            $this->response->setStatusCode(Response::METHOD_NOT_ALLOWED);
+            $this->response->setMessage('This Service is POST');
+
+            return $this->response;
+        }
+
         if(!isset($_SESSION['email'])){
             $this->response->setStatusCode(Response::UNAUTHORIZED);
             $this->response->setMessage('User is not logged in');
@@ -75,6 +83,7 @@ class Profile
             return $this->response;
         }
 
+        $this->getAdapter();
         $userCheck = $this->adapter->getUserByEmail($email);
 
         if($userCheck){
@@ -113,6 +122,11 @@ class Profile
         $this->response->setMessage('SUCCESS');
 
         return $this->response;
+    }
+
+    private function getAdapter()
+    {
+        $this->adapter = ($this->adapter == null) ? new ProfileAdapter() : $this->adapter;
     }
 
     private function validator($input)
