@@ -94,6 +94,8 @@ class Lobby
             $this->response->setStatusCode(LobbyResponse::USER_EQUAL_TO_LOBBYADMIN);
             $this->response->setMessage('User is lobbyadmin');
 
+            $_SESSION['lobbykey'] = $lobbyKey;
+
             return $this->response;
         }
 
@@ -103,6 +105,8 @@ class Lobby
             if($val == $user->id){
                 $this->response->setStatusCode(LobbyResponse::USER_ALREADY_IN_LOBBY);
                 $this->response->setMessage('User is already in the lobby');
+
+                $_SESSION['lobbykey'] = $lobbyKey;
 
                 return $this->response;
             }
@@ -151,6 +155,7 @@ class Lobby
         $this->response->setMessage('SUCCESS');
         $this->response->setAdmin($this->adapter->getUserById($result->admin)->username);
         $this->response->setMembers($this->adapter->getLobbyMemberList($this->members2array($result->members)));
+        $this->response->setTime($result->time);
 
         return $this->response;
     }

@@ -45,7 +45,7 @@ if(!$_SESSION['email']){
                         dataType : "json",
                     })
                         .done(function( data ) {
-                            if(data.status == 200){
+                            if(data.status == 200 || data.status == 1007 || data.status == 1008){
                                 changeSite('lobby.php');
                             }
 

@@ -54,9 +54,9 @@ class Auth
         }
 
         //Validation of the used parameters
-        $username = $this->validator($username);
-        $email    = $this->validator($email);
-        $password = $this->validator($password);
+        $username = $this->validate($username);
+        $email    = $this->validate($email);
+        $password = $this->validate($password);
 
         //Password-cryption
         $password = password_hash($password, PASSWORD_DEFAULT);
@@ -104,8 +104,8 @@ class Auth
         }
 
         //Validation of the used parameters
-        $email    = $this->validator($email);
-        $password = $this->validator($password);
+        $email    = $this->validate($email);
+        $password = $this->validate($password);
 
         $this->getAdapter();
         /** @var UserEntity $result */
@@ -140,7 +140,7 @@ class Auth
         $this->adapter = ($this->adapter == null) ? new AuthAdapter() : $this->adapter;
     }
 
-    private function validator($input)
+    private function validate($input)
     {
         $input = htmlspecialchars($input);
         $input = strip_tags($input);

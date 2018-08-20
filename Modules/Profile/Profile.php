@@ -106,9 +106,9 @@ class Profile
         }
 
         //Input-validation and password-hashing
-        $username = $this->validator($username);
-        $email = $this->validator($email);
-        $newPassword = $this->validator($newPassword);
+        $username = $this->validate($username);
+        $email = $this->validate($email);
+        $newPassword = $this->validate($newPassword);
 
         $newPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
@@ -129,7 +129,7 @@ class Profile
         $this->adapter = ($this->adapter == null) ? new ProfileAdapter() : $this->adapter;
     }
 
-    private function validator($input)
+    private function validate($input)
     {
         $input = htmlspecialchars($input);
         $input = strip_tags($input);

@@ -55,7 +55,7 @@ class LobbyAdapter
      */
     public function getLobbyByKey($lobbykey)
     {
-        $this->queryBox->select([LobbyModel::$id, LobbyModel::$admin, LobbyModel::$members]);
+        $this->queryBox->select([LobbyModel::$id, LobbyModel::$admin, LobbyModel::$members, LobbyModel::$time]);
         $this->queryBox->from(LobbyModel::$table);
         $this->queryBox->where(LobbyModel::$lobbykey, '=', $lobbykey);
 
